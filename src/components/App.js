@@ -14,12 +14,14 @@ export default function App() {
 
     const [drawnWord, setDrawnWord] = useState(false)
     const [word, setWord] = useState("")
+    const [wordUpper, setWordUpper] = useState("")
     const [pWord, setPWord] = useState("")
     const [hWord, setHWord] = useState("")
     const [arrayWord, setArrayWord] = useState("")
     const [inputWord, setInputWord] = useState("")
-
-
+    const [win, setWin] = useState(false)
+    const [endGame, setEndGame] = useState(false)
+    const [clickKick, setClickKick] = useState(false)
 
 
 
@@ -28,8 +30,10 @@ export default function App() {
         setWord(drawnWord)
         prepareWord(drawnWord) 
         setDrawnWord(true)
+        const upperWord = drawnWord.toUpperCase()
+        setWordUpper(upperWord)
     }
-    console.log("word: "+word)
+    //console.log("word: "+word)
 
     function prepareWord(w) {
         const pW = w.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -38,29 +42,42 @@ export default function App() {
         setArrayWord(array)
         const hiddenWord = pW.replace(/./g, "_")
         setHWord(hiddenWord)
-
     }
-    console.log("pWord: "+pWord)
-    console.log("arrayWord: "+arrayWord)
-    console.log("hWord: "+hWord)
+    //console.log("pWord: "+pWord)
+    //console.log("arrayWord: "+arrayWord)
+    //console.log("hWord: "+hWord)
 
+    function checkWin() {
+        //console.log("checkWin foi chamada")
+        //console.log("wordUpper: "+wordUpper)
+
+        if (hWord !== "" && hWord === wordUpper && win === false && endGame === false) {
+            //console.log("Verificando o 'if' de checkWin")
+            setWin(true)
+        }
+        else {
+            //console.log("Verificando o 'else' de checkWin")
+        }
+    }    
+    
+    if ((inputWord !== "" && clickKick === true && endGame === false) || (win === true && endGame === false) || (incorrectLetters === 6 && endGame === false)) {
+        displayWord()
+        setEndGame(true)
+    }
     
     function selectLetter(letter) {
-        console.log("Letra clicada: "+letter)
+        ////console.log("Letra clicada: "+letter)
         if (arrayWord.includes(letter)) {
             setSelectedLetters([...selectedLetters, letter])
             setCorrectLetters([...correctLetters, letter])
             displayLetters(letter);
-            checkWin();
         }
-            else {
-                setSelectedLetters([...selectedLetters, letter])
-                setIncorrectLetters(incorrectLetters + 1)
-                if (incorrectLetters === 5) {               
-                    displayWord()
-                }
-            }
+        else {
+            setSelectedLetters([...selectedLetters, letter])
+            setIncorrectLetters(incorrectLetters + 1)
+        }
     }
+    checkWin();
 
     function displayLetters(l) {
         const array = hWord.split("")
@@ -71,21 +88,13 @@ export default function App() {
         }
         const newWord = array.join("")
         setHWord(newWord)
-
     }
+
 /*     function loseGame() {
         alert("Você perdeu!")
         resetGame()
     } */
-
-    function checkWin() {
-        const upperWord = word.toUpperCase()
-        console.log("upperWord: "+upperWord)
-        if (hWord === upperWord) {
-            displayWord()
-        }
-    }
-
+    
     function resetGame() {
         setIncorrectLetters(0)
         setSelectedLetters([])
@@ -96,13 +105,16 @@ export default function App() {
         setHWord("")
         setArrayWord("")
         setInputWord("")
+        setWin(false)
+        setClickKick(false)
+        setEndGame(false)
         Letters()
         DrawWord()
     }
 
-    console.log("incorreta: "+incorrectLetters)
-    console.log("selecionada: "+selectedLetters)
-    console.log("correta: "+correctLetters)
+    ////console.log("incorreta: "+incorrectLetters)
+    ////console.log("selecionada: "+selectedLetters)
+    //console.log("correta: "+correctLetters)
    
      function Letter(props) {
         if (drawnWord === false) {
@@ -135,25 +147,62 @@ export default function App() {
         const inputW = inputWord.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         const iWord = inputW.toLowerCase()
 
-        console.log("inputWord: "+inputWord)
-        console.log("inputW: "+inputW)
-        console.log("iWord: "+iWord)
+        setClickKick(true)
+        ////console.log("inputWord: "+inputWord)
+        ////console.log("inputW: "+inputW)
+        ////console.log("iWord: "+iWord)
 
         if (iWord === pWord) {
-            displayWord(iWord)
-            console.log("Acertou!")
+            setWin(true)
+            //console.log(win)
+            ////console.log("Acertou!")
         }
         else {
             setIncorrectLetters(6)
-            displayWord(iWord)
-            console.log("Errou!")
+             ////console.log("Errou!")
         }
     }
     
     function displayWord() {
-            setHWord(word.toUpperCase())
-            setDrawnWord(false)
-            Letters()
+        setHWord(word.toUpperCase())
+        setDrawnWord(false)
+        Letters()
+        //console.log(win)
+    }
+
+    if (hWord !== "") {
+        GameWord()
+    }
+
+    function GameWord() {
+        //console.log("GameWord foi chamada "+win)
+        if (win === true) {
+            return (
+                <>
+                    <div className="win" style={{color:"green", fontWeight: "900"}}>
+                        <p>{hWord}</p>
+                    </div>
+                </>
+            )
+        }
+        else if (win === false && incorrectLetters === 6) {
+            return (
+                <>
+                    <div className="lose" style={{color:"red", fontWeight: "900"}}>
+                        <p>{hWord}</p>
+                    </div>
+                </>
+            )
+        }
+        else {
+            return (
+                <>
+                    <div className="word">
+                        <p>{hWord}</p>
+                    </div>
+                </>
+            )
+        }
     }
     
     return (
@@ -171,9 +220,7 @@ export default function App() {
                     </div>
                     <SectionRight>
                         <button onClick={(word === "") ? () => DrawWord() : () => resetGame()}>Escolher Palavra</button>
-                        <div>
-                            {hWord}
-                        </div>
+                        <GameWord />
                     </SectionRight>             
                 </Game>
                 <Letters />
