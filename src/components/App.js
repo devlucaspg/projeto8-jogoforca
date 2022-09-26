@@ -120,14 +120,14 @@ export default function App() {
         if (drawnWord === false) {
             return (
                 <>
-                    <button disabled={true} className={Disabled} onClick={() => selectLetter(props.l)} >{props.l}</button>
+                    <button data-identifier="letter" disabled={true} className={Disabled} onClick={() => selectLetter(props.l)} >{props.l}</button>
                 </>
             )
         }
         else {
             return (
                 <>
-                    <button disabled={(!selectedLetters.includes(props.l)) ? false : true} className={(!selectedLetters.includes(props.l)) ? {Enabled} : {Disabled}} onClick={() => selectLetter(props.l)} >{props.l}</button>
+                    <button data-identifier="letter" disabled={(!selectedLetters.includes(props.l)) ? false : true} className={(!selectedLetters.includes(props.l)) ? {Enabled} : {Disabled}} onClick={() => selectLetter(props.l)} >{props.l}</button>
                 </>
             )
         }
@@ -180,7 +180,7 @@ export default function App() {
             return (
                 <>
                     <div className="win" style={{color:"green", fontWeight: "900"}}>
-                        <p>{hWord}</p>
+                        <p data-identifier="word">{hWord}</p>
                     </div>
                 </>
             )
@@ -189,7 +189,7 @@ export default function App() {
             return (
                 <>
                     <div className="lose" style={{color:"red", fontWeight: "900"}}>
-                        <p>{hWord}</p>
+                        <p data-identifier="word">{hWord}</p>
                     </div>
                 </>
             )
@@ -198,7 +198,7 @@ export default function App() {
             return (
                 <>
                     <div className="word">
-                        <p>{hWord}</p>
+                        <p data-identifier="word">{hWord}</p>
                     </div>
                 </>
             )
@@ -216,10 +216,10 @@ export default function App() {
                 <GlobalStyle />
                 <Game>
                     <div>
-                        <HangmanImg src={images[incorrectLetters]} alt={([incorrectLetters] < 6) ? `Você ainda tem ${6-[incorrectLetters]} chances` : `Você não tem mais nenhuma chance`} />
+                        <HangmanImg data-identifier="game-image" src={images[incorrectLetters]} alt={([incorrectLetters] < 6) ? `Você ainda tem ${6-[incorrectLetters]} chances` : `Você não tem mais nenhuma chance`} />
                     </div>
                     <SectionRight>
-                        <button onClick={(word === "") ? () => DrawWord() : () => resetGame()}>Escolher Palavra</button>
+                        <button data-identifier="choose-word" onClick={(word === "") ? () => DrawWord() : () => resetGame()}>Escolher Palavra</button>
                         <GameWord />
                     </SectionRight>             
                 </Game>
@@ -227,8 +227,8 @@ export default function App() {
                 <Shot>
                     <div>
                     <span>Já sei a palavra!</span>
-                    <input disabled={(drawnWord === false) ? true : false} placeholder="Digite aqui a palavra" type="text" value={inputWord} onChange={(e) => setInputWord(e.target.value)}></input>
-                    <button disabled={(drawnWord === false) ? true : false} onClick={() => kickWord()}>Chutar</button>
+                    <input data-identifier="type-guess" disabled={(drawnWord === false) ? true : false} placeholder="Digite aqui a palavra" type="text" value={inputWord} onChange={(e) => setInputWord(e.target.value)}></input>
+                    <button data-identifier="guess-button" disabled={(drawnWord === false) ? true : false} onClick={() => kickWord()}>Chutar</button>
                     </div>
                 </Shot>
             </Main>
