@@ -12,11 +12,14 @@ export default function App() {
     const [selectedLetters, setSelectedLetters] = useState([])
     const [correctLetters, setCorrectLetters] = useState([])
 
+    const [drawnWord, setDrawnWord] = useState(false)
     const [word, setWord] = useState("")
     const [pWord, setPWord] = useState("")
     const [hWord, setHWord] = useState("")
     const [arrayWord, setArrayWord] = useState("")
-    const [disabled, setDisabled] = useState(false)
+    const [inputWord, setInputWord] = useState("")
+
+
 
 
 
@@ -24,6 +27,7 @@ export default function App() {
         const drawnWord = Words[Math.floor(Math.random() * Words.length)]
         setWord(drawnWord)
         prepareWord(drawnWord) 
+        setDrawnWord(true)
     }
     console.log("word: "+word)
 
@@ -45,35 +49,113 @@ export default function App() {
         console.log("Letra clicada: "+letter)
         if (arrayWord.includes(letter)) {
             setSelectedLetters([...selectedLetters, letter])
-            setCorrectLetters([...correctLetters, letter])}
+            setCorrectLetters([...correctLetters, letter])
+            displayLetters(letter);
+            checkWin();
+        }
             else {
                 setSelectedLetters([...selectedLetters, letter])
                 setIncorrectLetters(incorrectLetters + 1)
+                if (incorrectLetters === 5) {               
+                    displayWord()
+                }
             }
+    }
+
+    function displayLetters(l) {
+        const array = hWord.split("")
+        for (let i = 0; i < arrayWord.length; i++) {
+            if (arrayWord[i] === l) {
+                array[i] = word[i].toUpperCase()
+            }
+        }
+        const newWord = array.join("")
+        setHWord(newWord)
+
+    }
+/*     function loseGame() {
+        alert("Você perdeu!")
+        resetGame()
+    } */
+
+    function checkWin() {
+        const upperWord = word.toUpperCase()
+        console.log("upperWord: "+upperWord)
+        if (hWord === upperWord) {
+            displayWord()
+        }
+    }
+
+    function resetGame() {
+        setIncorrectLetters(0)
+        setSelectedLetters([])
+        setCorrectLetters([])
+        setDrawnWord(false)
+        setWord("")
+        setPWord("")
+        setHWord("")
+        setArrayWord("")
+        setInputWord("")
+        Letters()
+        DrawWord()
     }
 
     console.log("incorreta: "+incorrectLetters)
     console.log("selecionada: "+selectedLetters)
     console.log("correta: "+correctLetters)
    
+     function Letter(props) {
+        if (drawnWord === false) {
+            return (
+                <>
+                    <button disabled={true} className={Disabled} onClick={() => selectLetter(props.l)} >{props.l}</button>
+                </>
+            )
+        }
+        else {
+            return (
+                <>
+                    <button disabled={(!selectedLetters.includes(props.l)) ? false : true} className={(!selectedLetters.includes(props.l)) ? {Enabled} : {Disabled}} onClick={() => selectLetter(props.l)} >{props.l}</button>
+                </>
+            )
+        }
+    }
 
     function Letters() {
         const alphabetUpperCase = alphabet.map((letter) => letter.toUpperCase())
         return (
             <LetterBox className="letters">
-                {alphabetUpperCase.map((l, index) => <div onClick={() => selectLetter(l)} key={index} id={index}>{l}</div>)}
+                {alphabetUpperCase.map((l, index) => 
+                <Letter l={l} key={index} id={101+index}/>)}
             </LetterBox>
         )
     } 
 
+    function kickWord() {
+        const inputW = inputWord.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        const iWord = inputW.toLowerCase()
 
+        console.log("inputWord: "+inputWord)
+        console.log("inputW: "+inputW)
+        console.log("iWord: "+iWord)
 
-
-
-
-
-
-
+        if (iWord === pWord) {
+            displayWord(iWord)
+            console.log("Acertou!")
+        }
+        else {
+            setIncorrectLetters(6)
+            displayWord(iWord)
+            console.log("Errou!")
+        }
+    }
+    
+    function displayWord() {
+            setHWord(word.toUpperCase())
+            setDrawnWord(false)
+            Letters()
+    }
+    
     return (
         <>
             <Header>
@@ -88,7 +170,7 @@ export default function App() {
                         <HangmanImg src={images[incorrectLetters]} alt={([incorrectLetters] < 6) ? `Você ainda tem ${6-[incorrectLetters]} chances` : `Você não tem mais nenhuma chance`} />
                     </div>
                     <SectionRight>
-                        <button onClick={() => DrawWord()}>Escolher Palavra</button>
+                        <button onClick={(word === "") ? () => DrawWord() : () => resetGame()}>Escolher Palavra</button>
                         <div>
                             {hWord}
                         </div>
@@ -98,18 +180,14 @@ export default function App() {
                 <Shot>
                     <div>
                     <span>Já sei a palavra!</span>
-                    <input placeholder="Digite aqui a palavra"></input>
-                    <button>Chutar</button>
+                    <input disabled={(drawnWord === false) ? true : false} placeholder="Digite aqui a palavra" type="text" value={inputWord} onChange={(e) => setInputWord(e.target.value)}></input>
+                    <button disabled={(drawnWord === false) ? true : false} onClick={() => kickWord()}>Chutar</button>
                     </div>
                 </Shot>
             </Main>
-        </>
-
-    
+        </>   
     );
-
 }
-
 
 const Header = styled.div`
     width: 90%;
@@ -165,17 +243,24 @@ const LetterBox = styled.div`
     padding: 50px;
 
 
-    div{
-        width: 15px;
-        height: 15px;
+    button {
+        width: 40px;
+        height: 40px;
         margin: 10px;
         padding: 10px;
         text-align: center;
+        justify-content: center;
         font-weight: 700;
         border-radius: 5px;
-        border: 2.5px solid cornflowerblue; 
-        color: cornflowerblue;
     }
+`
+
+const Enabled = styled.div`
+
+`
+
+const Disabled = styled.div`
+
 `
 
 const Shot = styled.div`
@@ -191,10 +276,8 @@ const Shot = styled.div`
 
     button {
         padding: 10px;
-        color: cornflowerblue; 
-        text-align: center;
         font-weight: 700;
-        border: 2.5px solid cornflowerblue; 
+        border: 2.5px solid ; 
         border-radius: 5px;
     }
 `
