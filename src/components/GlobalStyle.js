@@ -46,4 +46,5 @@ table {
 }
 `
 
+
 export default GlobalStyle
